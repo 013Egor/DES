@@ -1,13 +1,48 @@
+/*DES algorithm
+from https://page.math.tu-berlin.de/~kant/teaching/hess/krypto-ws2006/des.htm
+*/
+
 #include <iostream>
 #include <fstream>
 #include <bitset>
+#include <string>
+#include <algorithm>
 
 #define EXTENDED_KEY_SIZE 64
 #define KEY_SIZE 56
 #define SUBKEY_SIZE 48
 #define ROUNDS 16
 
+#define PC1_ROWS 8
+#define PC1_COLUMNS 7
+
+#define PC2_ROWS 8
+#define PC2_COLUMNS 6
+
 using namespace std;
+
+
+int PC1[PC1_ROWS][PC1_COLUMNS] = 
+                {{57, 49, 41, 33, 25, 17, 9},
+                 {1, 58, 50, 42, 34, 26, 18},
+                 {10, 2, 59, 51, 43, 35, 27},
+                 {19, 11, 3, 60, 52, 44, 36},
+                 {63, 55, 47, 39, 31, 23, 15},
+                 {7, 62, 54, 46, 38, 30, 22},
+                 {14, 6, 61, 53, 45, 37, 29},
+                 {21, 13, 5, 28, 20, 12, 4}};
+
+int PC2[PC2_ROWS][PC2_COLUMNS] =
+                {{14, 17, 11, 24, 1, 5},
+                 {3, 28, 15, 6, 21, 10},
+                 {23, 19, 12, 4, 26, 8},
+                 {16, 7, 27, 20, 13, 2},
+                 {41, 52, 31, 37, 47, 55},
+                 {30, 40, 51, 45, 33, 48},
+                 {44, 49, 39, 56, 34, 53},
+                 {46, 42, 50, 36, 29, 32}};
+
+int LEFT_SHIFTS_NUMBER[ROUNDS] = {1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1};
 
 class Des{
 
@@ -17,9 +52,14 @@ private:
 
     bitset<EXTENDED_KEY_SIZE> extendedKey;
     bitset<KEY_SIZE> key;
+    bitset<KEY_SIZE/2> leftHalf; // left half of key
+    bitset<KEY_SIZE/2> rightHalf; // right half of key
     bitset<SUBKEY_SIZE> subkey[ROUNDS];
 
-    void reducedKey();
+    void createKeys();
+    void initialKeyPermutation();
+    void splitKey();
+    void subkeyInitialization();
 
 public:
     Des(bitset<EXTENDED_KEY_SIZE>&);
@@ -33,18 +73,10 @@ public:
 
 
 int main(){
-    bitset<EXTENDED_KEY_SIZE> myKey;
-
-    srand(time(0));
-    int randomValue = 0;
-    for(int i = 0; i < EXTENDED_KEY_SIZE; i++){
-        //randomValue = rand() % 2;
-        randomValue = ++randomValue % 2;
-        myKey[i] = randomValue;
-    }
-    cout << "key before reduced" << '\n';
-    cout << myKey.to_string() << endl;;
-
+    string keyStr("0001001100110100010101110111100110011011101111001101111111110001");
+    reverse(keyStr.begin(), keyStr.end());
+    
+    bitset<EXTENDED_KEY_SIZE> myKey(keyStr);
     Des* d = new Des(myKey);
 
     d->test();
@@ -68,10 +100,8 @@ void Des::encryption(){
 }
 
 void Des::test(){
-    reducedKey();
-
-    cout << "key after reduced" << '\n';
-    cout << key.to_string() << endl;
+    initialKeyPermutation();
+    splitKey();
 }
 
 
@@ -80,13 +110,30 @@ void Des::decryption(){
 
 }
 
-void Des::reducedKey(){
-    int deleteBits = 0;
-    for(int exKeyIterator = 0; exKeyIterator < EXTENDED_KEY_SIZE; exKeyIterator++){
-        if(exKeyIterator != 0 && (exKeyIterator + 1) % 8 == 0){ //каждый 8ой бит удаляется
-            deleteBits++;
-            continue;
+void Des::createKeys(){
+    initialKeyPermutation();
+    splitKey();
+    subkeyInitialization();
+}
+
+void Des::initialKeyPermutation(){
+    int keyIterator = 0;
+    for(int row = 0; row < PC1_ROWS; row++){
+        for(int column = 0; column < PC1_COLUMNS; column++){
+            key[keyIterator++] = extendedKey[PC1[row][column] - 1];
         }
-        key[exKeyIterator - deleteBits] = extendedKey[exKeyIterator];
     }
+}
+
+void Des::splitKey(){
+    int keyIterator = 0;
+    int halfIterator = 0;
+
+    while(keyIterator < KEY_SIZE/2) leftHalf[halfIterator++] = key[keyIterator++];
+    halfIterator = 0;
+    while(keyIterator < KEY_SIZE) rightHalf[halfIterator++] = key[keyIterator++];
+}
+
+void Des::subkeyInitialization(){
+    // next step
 }
