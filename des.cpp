@@ -5,13 +5,14 @@ from https://page.math.tu-berlin.de/~kant/teaching/hess/krypto-ws2006/des.htm
 #include <iostream>
 #include <fstream>
 #include <bitset>
+#include <bit>
 #include <string>
 #include <algorithm>
 
 #define EXTENDED_KEY_SIZE 64
 #define KEY_SIZE 56
 #define SUBKEY_SIZE 48
-#define ROUNDS 16
+#define SUBKEY_INITIALIZATION_ROUNDS 16
 
 #define PC1_ROWS 8
 #define PC1_COLUMNS 7
@@ -42,7 +43,7 @@ int PC2[PC2_ROWS][PC2_COLUMNS] =
                  {44, 49, 39, 56, 34, 53},
                  {46, 42, 50, 36, 29, 32}};
 
-int LEFT_SHIFTS_NUMBER[ROUNDS] = {1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1};
+int LEFT_SHIFTS_NUMBER[SUBKEY_INITIALIZATION_ROUNDS] = {1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1};
 
 class Des{
 
@@ -54,7 +55,7 @@ private:
     bitset<KEY_SIZE> key;
     bitset<KEY_SIZE/2> leftHalf; // left half of key
     bitset<KEY_SIZE/2> rightHalf; // right half of key
-    bitset<SUBKEY_SIZE> subkey[ROUNDS];
+    bitset<SUBKEY_SIZE> subkey[SUBKEY_INITIALIZATION_ROUNDS];
 
     void createKeys();
     void initialKeyPermutation();
@@ -76,9 +77,10 @@ int main(){
     string keyStr("0001001100110100010101110111100110011011101111001101111111110001");
     reverse(keyStr.begin(), keyStr.end());
     
+    cout << "testKey: 0001001100110100010101110111100110011011101111001101111111110001" << "\n" << endl;
+
     bitset<EXTENDED_KEY_SIZE> myKey(keyStr);
     Des* d = new Des(myKey);
-
     d->test();
 }
 
@@ -94,14 +96,19 @@ Des::Des(bitset<EXTENDED_KEY_SIZE>& exKey, ifstream in, ofstream out){
 }
 
 void Des::encryption(){
-    //1. Написать блок для разбивки ключа на 16 подключей
+    //1. Написать блок для разбивки ключа на 16 подключей (complete)
+    createKeys();
     //2. Написать блок работы функции f (главной функции)
     //3. Написать блок работы сети Файстеля
 }
 
 void Des::test(){
-    initialKeyPermutation();
-    splitKey();
+    createKeys();
+
+    cout << "subkeys for testKey:\n\n";
+    for(int i = 0; i < SUBKEY_INITIALIZATION_ROUNDS; i++){
+        cout << "subkey " << i + 1 << " ---> " << subkey[i].to_string() << "\n" << endl;
+    }
 }
 
 
@@ -135,5 +142,56 @@ void Des::splitKey(){
 }
 
 void Des::subkeyInitialization(){
-    // next step
+
+    for(int roundСounter = 1; roundСounter <= SUBKEY_INITIALIZATION_ROUNDS; roundСounter++){
+        
+        bool lostValue;
+
+        bitset<KEY_SIZE> concatenated;
+        int concatenatedCounter = 0; 
+
+        //shift halfs
+        for(int shiftCounter = 0; shiftCounter < LEFT_SHIFTS_NUMBER[roundСounter - 1]; shiftCounter++){
+
+            lostValue = leftHalf[0];
+            leftHalf >>= 1; 
+            leftHalf[KEY_SIZE/2 - 1] = lostValue;             
+            
+            lostValue = rightHalf[0];
+            rightHalf >>= 1;
+            rightHalf[KEY_SIZE/2 - 1] = lostValue;
+
+        }
+
+        //concatenated two halfs = leftHalf + rightHalf
+        for(int leftCounter = 0; leftCounter < KEY_SIZE/2; leftCounter++)
+            concatenated[concatenatedCounter++] = leftHalf[leftCounter];
+        for(int rightCounter = 0; rightCounter < KEY_SIZE/2; rightCounter++)
+            concatenated[concatenatedCounter++] = rightHalf[rightCounter];
+
+        //permutation. concatenated key(56 bits) --(to)--> subkey(48 bits) 
+        int subkeyIterator = 0;
+        for(int row = 0; row < PC2_ROWS; row++){
+            for(int column = 0; column < PC2_COLUMNS; column++){
+                subkey[roundСounter - 1][subkeyIterator++] = concatenated[PC2[row][column] - 1];
+            }
+        }
+    }   
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
