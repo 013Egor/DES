@@ -4,6 +4,7 @@
 #include <algorithm>
 
 #include "des.h"
+#include "fileMaster.h"
 
 using namespace std;
 
@@ -17,4 +18,6 @@ int main(){
     bitset<EXTENDED_KEY_SIZE> myKey(keyStr);
     Des* d = new Des(myKey);
     d->test();
+
+    return 0;
 }
