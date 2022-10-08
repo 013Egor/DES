@@ -1,5 +1,3 @@
-#include <iostream>
-#include <bitset>
 #include "fileMaster.h"
 
 int getIterationAmount(ifstream* stream) {
@@ -8,6 +6,7 @@ int getIterationAmount(ifstream* stream) {
     int size = stream->tellg();
     stream->seekg (pos, stream->beg);
     int iteration = (size - pos) / BYTE_SIZE;
+
     if (iteration * BYTE_SIZE != (size - pos)) {
         iteration++;
     }
@@ -18,8 +17,6 @@ int getIterationAmount(ifstream* stream) {
 bitset<MESSAGE_SIZE> getBitset(char* buffer) {
     bitset<MESSAGE_SIZE> bits = bitset<MESSAGE_SIZE>();
 
-
-
     for (int i = 0; i < BYTE_SIZE; ++i) {
         char c = buffer[i];
         for (int j = 0; j < BYTE_SIZE && c; j++) {
@@ -29,20 +26,13 @@ bitset<MESSAGE_SIZE> getBitset(char* buffer) {
             c >>= 1;
         }
     }
-}
-void FileMaster::createFile(string text) {
-    std::ofstream out;
-    out.open ("message.txt", std::ofstream::out | std::ofstream::app);
 
-    out << text;
-
-    out.close();
+    return bits;
 }
 
 void FileMaster::read() {
     inputBuffer.clear();
     int iteration = getIterationAmount(inFile);
-
     for (int t = 0; t < iteration && inputBuffer.size() < BUFFER_SIZE; t++) {
         char * buffer = new char [BYTE_SIZE];
         inFile->read (buffer,BYTE_SIZE);
@@ -56,8 +46,10 @@ void FileMaster::read() {
 
 void FileMaster::saveEncrypted() {
     int bytesAmount = MESSAGE_SIZE / BYTE_SIZE;
-
-    for (const auto &item: outputBuffer) {
+    char* size = new char;
+    (*size) = (char) extraBytes;
+    outFile->write(size, 1);
+    for (const auto &item: inputBuffer) {
         char* buffer = new char [BYTE_SIZE];
 
         for (int i = 0; i < bytesAmount; i++) {
@@ -75,8 +67,13 @@ void FileMaster::saveEncrypted() {
 
 void FileMaster::save() {
     int bytesAmount = MESSAGE_SIZE / BYTE_SIZE;
-    for (const auto &item: outputBuffer) {
-        int cap = originSize - outFile->tellp();
+    int pos = inFile->tellg();
+    int maxSize = inFile->seekg(0, inFile->end).tellg();
+    maxSize -= extraBytes;
+
+    inFile->seekg(pos, inFile->beg);
+    for (const auto &item: inputBuffer) {
+        int cap = maxSize - outFile->tellp();
         int sizeBuffer = (cap >= bytesAmount) ? bytesAmount : cap;
         char * buffer = new char [sizeBuffer];
 
