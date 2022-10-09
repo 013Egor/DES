@@ -73,11 +73,6 @@ private:
     bitset<MESSAGE_SIZE/2> functionF(bitset<MESSAGE_SIZE/2> rightHalf, bitset<SUBKEY_SIZE> key);
 
 public:
-    Des(bitset<EXTENDED_KEY_SIZE>&, Mode m);
-    bitset<MESSAGE_SIZE> testMessage(string str);
-
-    void setMessage(bitset<MESSAGE_SIZE>& message);
-    bitset<MESSAGE_SIZE> encryption();
-    void decryption();
-    
+    Des(bitset<EXTENDED_KEY_SIZE>& key, bitset<MESSAGE_SIZE>& new_message, Mode m);
+    bitset<MESSAGE_SIZE> run();
 };

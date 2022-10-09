@@ -94,9 +94,10 @@ void FileMaster::save() {
     }
     outputBuffer.clear();
 }
-bitset<MESSAGE_SIZE>& FileMaster::getBlock(){
+bitset<MESSAGE_SIZE> FileMaster::getBlock(){
     bitset<MESSAGE_SIZE> temp = inputBuffer.front();
     inputBuffer.pop_front();
+    //std::cout << temp.to_string() << endl;
     return temp;
 }
 bool FileMaster::setBlock(bitset<MESSAGE_SIZE>& block) {
