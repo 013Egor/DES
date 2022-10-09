@@ -30,6 +30,7 @@ bitset<MESSAGE_SIZE> getBitset(char* buffer) {
     return bits;
 }
 
+
 void FileMaster::read() {
     inputBuffer.clear();
     int iteration = getIterationAmount(inFile);
@@ -49,7 +50,7 @@ void FileMaster::saveEncrypted() {
     char* size = new char;
     (*size) = (char) extraBytes;
     outFile->write(size, 1);
-    for (const auto &item: inputBuffer) {
+    for (const auto &item: outputBuffer) {
         char* buffer = new char [BYTE_SIZE];
 
         for (int i = 0; i < bytesAmount; i++) {
@@ -63,6 +64,8 @@ void FileMaster::saveEncrypted() {
         outFile->write(buffer, BYTE_SIZE);
         delete[] buffer;
     }
+
+    outputBuffer.clear();
 }
 
 void FileMaster::save() {
@@ -72,7 +75,7 @@ void FileMaster::save() {
     maxSize -= extraBytes;
 
     inFile->seekg(pos, inFile->beg);
-    for (const auto &item: inputBuffer) {
+    for (const auto &item: outputBuffer) {
         int cap = maxSize - outFile->tellp();
         int sizeBuffer = (cap >= bytesAmount) ? bytesAmount : cap;
         char * buffer = new char [sizeBuffer];
@@ -89,9 +92,19 @@ void FileMaster::save() {
         outFile->write(buffer, sizeBuffer);
         delete[] buffer;
     }
+    outputBuffer.clear();
 }
 bitset<MESSAGE_SIZE>& FileMaster::getBlock(){
     bitset<MESSAGE_SIZE> temp = inputBuffer.front();
     inputBuffer.pop_front();
     return temp;
+}
+bool FileMaster::setBlock(bitset<MESSAGE_SIZE>& block) {
+    if (outputBuffer.size() < BUFFER_SIZE) {
+        outputBuffer.push_back(block);
+
+        return true;
+    } else {
+        return false;
+    }
 }
