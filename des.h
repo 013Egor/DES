@@ -1,9 +1,11 @@
 /*DES algorithm
 from https://page.math.tu-berlin.de/~kant/teaching/hess/krypto-ws2006/des.htm
 */
+#pragma once
 #include <iostream>
 #include <fstream>
 #include <bitset>
+#include "fileMaster.h"
 
 #define EXTENDED_KEY_SIZE 64
 #define KEY_SIZE 56
@@ -42,11 +44,6 @@ from https://page.math.tu-berlin.de/~kant/teaching/hess/krypto-ws2006/des.htm
 
 using namespace std;
 
-enum Mode{
-    encryption,
-    decryption
-};
-
 class Des{
 
 private:
@@ -79,6 +76,7 @@ public:
     Des(bitset<EXTENDED_KEY_SIZE>&, Mode m);
     bitset<MESSAGE_SIZE> testMessage(string str);
 
+    void setMessage(bitset<MESSAGE_SIZE>& message);
     bitset<MESSAGE_SIZE> encryption();
     void decryption();
     

@@ -5,8 +5,8 @@
 #include <algorithm>
 
 #include "des.h"
-
 using namespace std;
+
 
 
 int PC1[PC1_ROWS][PC1_COLUMNS] = 
@@ -323,7 +323,9 @@ bitset<MESSAGE_SIZE/2> Des::functionF(bitset<MESSAGE_SIZE/2> rightHalf, bitset<S
     return permutationResult;
 }
 
-
+void Des::setMessage(bitset<MESSAGE_SIZE>& message){
+    this->message = message;
+}
 
 
 
