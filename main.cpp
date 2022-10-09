@@ -5,6 +5,7 @@
 #include <string>
 
 #include "des.h"
+#include "fileMaster.h"
 
 using namespace std;
 
@@ -72,6 +73,7 @@ int main(){
     
 
     bitset<EXTENDED_KEY_SIZE> myKey(keyStr);
+
     cout << "testKey: 0001001100110100010101110111100110011011101111001101111111110001 <---> " << myKey.to_string() << "\n" << endl;
     
     Des* d = new Des(myKey, encryption);

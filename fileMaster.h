@@ -3,7 +3,8 @@
 #include <list>
 #include <string>
 #define MESSAGE_SIZE 64
-#define BUFFER_SIZE 4
+
+#define BUFFER_SIZE 40
 #define BYTE_SIZE 8
 
 using namespace std;
@@ -26,15 +27,38 @@ private:
 
     list<bitset<MESSAGE_SIZE>> outputBuffer;
 
-    int originSize;
+    int extraBytes;
 public:
-    FileMaster() {
-        inFile = new ifstream("message.txt", std::ifstream::in);
-        outFile = new ofstream("message_output.des", std::ofstream::out);
+    FileMaster(string filename, Mode mode) {
+        string outputFilename = "";
+        for (const auto &item: filename) {
+            if (item == '.') {
+                break;
+            }
+            outputFilename += item;
+        }
+        outputFilename += "_output";
+        if (mode == 0) {
+            outputFilename += ".des";
+        } else {
+            outputFilename += ".txt";
+        }
+        inFile = new ifstream(filename, std::ifstream::in);
+        outFile = new ofstream(outputFilename, std::ofstream::out);
 
-        inFile->seekg (0, inFile->end);
-        originSize = inFile->tellg();
-        inFile->seekg (0, inFile->beg);
+        if (mode == 1) {
+            char* size = new char;
+            inFile->read(size, 1);
+            extraBytes = (int) size[0];
+            extraBytes++;
+        } else {
+            inFile->seekg (0, inFile->end);
+            int originSize = inFile->tellg();
+            inFile->seekg (0, inFile->beg);
+            int full = originSize % BYTE_SIZE;
+
+            extraBytes = BYTE_SIZE - full;
+        }
     }
     ~FileMaster() {
         if (inFile) {
@@ -47,7 +71,15 @@ public:
 
     bitset<MESSAGE_SIZE>& getBlock();
 
-    void createFile(string text);
+
+    void static createFile(string text) {
+        std::ofstream out;
+        out.open ("message.txt", std::ofstream::out);
+
+        out << text;
+
+        out.close();
+    }
 
     void read();
 
