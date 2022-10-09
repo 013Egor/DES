@@ -122,27 +122,15 @@ int S_BOX[S_BOX_NUMBER][S_BOX_ROWS][S_BOX_COLUMNS] = {
 
 int LEFT_SHIFTS_NUMBER[ROUNDS] = {1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1};
 
-Des::Des(bitset<EXTENDED_KEY_SIZE>& exKey, Mode m){
+Des::Des(bitset<EXTENDED_KEY_SIZE>& exKey, bitset<MESSAGE_SIZE>& newMessage, Mode m){
     this->mode = m;
     extendedKey = exKey;
+    this->message = newMessage;
 }
 
-bitset<MESSAGE_SIZE> Des::encryption(){
+bitset<MESSAGE_SIZE> Des::run(){
     createKeys();
     return feistelСipher();
-}
-
-
-
-bitset<MESSAGE_SIZE> Des::testMessage(string str){
-    reverse(str.begin(), str.end());
-    bitset<MESSAGE_SIZE> messageTmp(str); 
-    this->message = messageTmp;
-    return this->encryption();
-}
-
-void Des::decryption(){
-
 }
 
 void Des::createKeys(){
@@ -321,10 +309,6 @@ bitset<MESSAGE_SIZE/2> Des::functionF(bitset<MESSAGE_SIZE/2> rightHalf, bitset<S
     }
     //cout << "permutation result: " << permutationResult << endl;
     return permutationResult;
-}
-
-void Des::setMessage(bitset<MESSAGE_SIZE>& message){
-    this->message = message;
 }
 
 

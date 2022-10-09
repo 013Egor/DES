@@ -3,6 +3,7 @@
 #include <bitset>
 #include <list>
 #include <string>
+#include <iostream>
 #define MESSAGE_SIZE 64
 
 #define BUFFER_SIZE 40
@@ -70,7 +71,7 @@ public:
         }
     }
 
-    bitset<MESSAGE_SIZE>& getBlock();
+    bitset<MESSAGE_SIZE> getBlock();
 
 
     bool setBlock(bitset<MESSAGE_SIZE>& block);
