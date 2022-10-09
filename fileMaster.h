@@ -1,8 +1,10 @@
+#pragma once
 #include <fstream>
 #include <bitset>
 #include <list>
 #include <string>
 #define MESSAGE_SIZE 64
+
 #define BUFFER_SIZE 40
 #define BYTE_SIZE 8
 
@@ -69,6 +71,7 @@ public:
     }
 
     bitset<MESSAGE_SIZE>& getBlock();
+
 
     bool setBlock(bitset<MESSAGE_SIZE>& block);
 
