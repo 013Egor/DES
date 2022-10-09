@@ -73,6 +73,8 @@ public:
     bitset<MESSAGE_SIZE>& getBlock();
 
 
+    bool setBlock(bitset<MESSAGE_SIZE>& block);
+
     void static createFile(string text) {
         std::ofstream out;
         out.open ("message.txt", std::ofstream::out);
