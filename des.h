@@ -42,9 +42,16 @@ from https://page.math.tu-berlin.de/~kant/teaching/hess/krypto-ws2006/des.htm
 
 using namespace std;
 
+enum Mode{
+    encryption,
+    decryption
+};
+
 class Des{
 
 private:
+    Mode mode;
+
     bitset<EXTENDED_KEY_SIZE> extendedKey;
     bitset<SUBKEY_SIZE> subkey[ROUNDS];
     bitset<MESSAGE_SIZE> message;
@@ -69,8 +76,8 @@ private:
     bitset<MESSAGE_SIZE/2> functionF(bitset<MESSAGE_SIZE/2> rightHalf, bitset<SUBKEY_SIZE> key);
 
 public:
-    Des(bitset<EXTENDED_KEY_SIZE>&);
-    void test();
+    Des(bitset<EXTENDED_KEY_SIZE>&, Mode m);
+    bitset<MESSAGE_SIZE> testMessage(string str);
 
     bitset<MESSAGE_SIZE> encryption();
     void decryption();

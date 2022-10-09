@@ -122,7 +122,8 @@ int S_BOX[S_BOX_NUMBER][S_BOX_ROWS][S_BOX_COLUMNS] = {
 
 int LEFT_SHIFTS_NUMBER[ROUNDS] = {1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1};
 
-Des::Des(bitset<EXTENDED_KEY_SIZE>& exKey){
+Des::Des(bitset<EXTENDED_KEY_SIZE>& exKey, Mode m){
+    this->mode = m;
     extendedKey = exKey;
 }
 
@@ -131,12 +132,13 @@ bitset<MESSAGE_SIZE> Des::encryption(){
     return feistelСipher();
 }
 
-void Des::test(){
-    string messageStr("0000000100100011010001010110011110001001101010111100110111101111");
-    reverse(messageStr.begin(), messageStr.end());
-    bitset<MESSAGE_SIZE> messageTmp(messageStr);
+
+
+bitset<MESSAGE_SIZE> Des::testMessage(string str){
+    reverse(str.begin(), str.end());
+    bitset<MESSAGE_SIZE> messageTmp(str); 
     this->message = messageTmp;
-    cout << "encryption: " << this->encryption() << endl;
+    return this->encryption();
 }
 
 void Des::decryption(){
@@ -233,9 +235,9 @@ bitset<MESSAGE_SIZE> Des::feistelСipher(){
         rightMessageHalf = nextRightHalf;
 
         nextLeftHalf = rightMessageHalf;
-        nextRightHalf = leftMessageHalf ^ functionF(rightMessageHalf, subkey[roundCounter]);
+        nextRightHalf = leftMessageHalf ^ functionF(rightMessageHalf, subkey[(this->mode == 0) ? roundCounter : ROUNDS - 1 - roundCounter]);
         /*error*/
-        cout << "right half: " << nextRightHalf << endl;
+       // cout << "right half: " << nextRightHalf << endl;
     }
 
     //concatenated two halfs = rightHalf + leftHalf
@@ -309,7 +311,7 @@ bitset<MESSAGE_SIZE/2> Des::functionF(bitset<MESSAGE_SIZE/2> rightHalf, bitset<S
             result[resultIterator++] = resultBlock[blockCounter];
         }
     }
-    cout << "result: " << result << "\n" << endl;
+    //cout << "result: " << result << "\n" << endl;
     //final permutation
     resultIterator = 0;
     for(int row = 0; row < P_ROWS; row++){
@@ -317,8 +319,8 @@ bitset<MESSAGE_SIZE/2> Des::functionF(bitset<MESSAGE_SIZE/2> rightHalf, bitset<S
             permutationResult[resultIterator++] = result[P[row][column] - 1];
         }
     }
-    cout << "permutation result: " << permutationResult << endl;
-    return result;
+    //cout << "permutation result: " << permutationResult << endl;
+    return permutationResult;
 }
 
 
