@@ -47,9 +47,7 @@ void FileMaster::read() {
 
 void FileMaster::saveEncrypted() {
     int bytesAmount = MESSAGE_SIZE / BYTE_SIZE;
-    char* size = new char;
-    (*size) = (char) extraBytes;
-    outFile->write(size, 1);
+
     for (const auto &item: outputBuffer) {
         char* buffer = new char [BYTE_SIZE];
 
@@ -95,10 +93,14 @@ void FileMaster::save() {
     outputBuffer.clear();
 }
 bitset<MESSAGE_SIZE> FileMaster::getBlock(){
-    bitset<MESSAGE_SIZE> temp = inputBuffer.front();
-    inputBuffer.pop_front();
-    //std::cout << temp.to_string() << endl;
-    return temp;
+    if (inputBuffer.size() > 0) {
+        bitset<MESSAGE_SIZE> temp = inputBuffer.front();
+        inputBuffer.pop_front();
+        return temp;
+    } else {
+        return NULL;
+    }
+
 }
 bool FileMaster::setBlock(bitset<MESSAGE_SIZE>& block) {
     if (outputBuffer.size() < BUFFER_SIZE) {
@@ -108,4 +110,8 @@ bool FileMaster::setBlock(bitset<MESSAGE_SIZE>& block) {
     } else {
         return false;
     }
+}
+
+bool FileMaster::isReadable() {
+    return getIterationAmount(inFile) > 0;
 }

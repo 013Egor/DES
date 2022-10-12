@@ -22,15 +22,15 @@ private:
     string outputFilename;
     string filenameExtension;
 
-    ifstream* inFile;
-    ofstream* outFile;
-
     list<bitset<MESSAGE_SIZE>> inputBuffer;
 
     list<bitset<MESSAGE_SIZE>> outputBuffer;
 
     int extraBytes;
 public:
+    ifstream* inFile;
+    ofstream* outFile;
+
     FileMaster(string filename, Mode mode) {
         string outputFilename = "";
         for (const auto &item: filename) {
@@ -60,6 +60,10 @@ public:
             int full = originSize % BYTE_SIZE;
 
             extraBytes = BYTE_SIZE - full;
+
+            char* size = new char;
+            (*size) = (char) extraBytes;
+            outFile->write(size, 1);
         }
     }
     ~FileMaster() {
@@ -89,5 +93,6 @@ public:
 
     void saveEncrypted();
 
+    bool isReadable();
     void save();
 };
