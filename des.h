@@ -5,6 +5,7 @@ from https://page.math.tu-berlin.de/~kant/teaching/hess/krypto-ws2006/des.htm
 #include <iostream>
 #include <fstream>
 #include <bitset>
+#include <algorithm>
 #include "fileMaster.h"
 
 #define EXTENDED_KEY_SIZE 64
@@ -44,6 +45,7 @@ from https://page.math.tu-berlin.de/~kant/teaching/hess/krypto-ws2006/des.htm
 
 using namespace std;
 
+
 class Des{
 
 private:
@@ -69,10 +71,32 @@ private:
     void subkeyInitialization();
 
     //for feistel cipher
-    bitset<MESSAGE_SIZE> feistelСipher();
+    bitset<MESSAGE_SIZE> feistelCipher();
     bitset<MESSAGE_SIZE/2> functionF(bitset<MESSAGE_SIZE/2> rightHalf, bitset<SUBKEY_SIZE> key);
 
 public:
     Des(bitset<EXTENDED_KEY_SIZE>& key, bitset<MESSAGE_SIZE>& new_message, Mode m);
     bitset<MESSAGE_SIZE> run();
+    static void showPC_1();
+    static void showPC_2();
+    static void showIP();
+    static void showE();
+    static void showP();
+    static void showIP_r();
+    static void showS_box(int id);
+    static void changePC_1(int row, int column, int value);
+    static void changePC_2(int row, int column, int value);
+    static void changeIP(int row, int column, int value);
+    static void changeE(int row, int column, int value);
+    static void changeP(int row, int column, int value);
+    static void changeIP_r(int row, int column, int value);
+    static void changeS_box(int id, int row, int column, int value);
+
 };
+
+//cout << "| 9) Change PC-1 table                |\n"; //TODO 9
+//cout << "| 10) Change PC-2 table               |\n"; //TODO 10
+//cout << "| 11) Change IP table                 |\n"; //TODO 11
+//cout << "| 12) Change E table                  |\n"; //TODO 12
+//cout << "| 13) Change P table                  |\n"; //TODO 13
+//cout << "| 14) Change IP~ table                |\n"; //TODO 14
