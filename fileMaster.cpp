@@ -45,7 +45,7 @@ void FileMaster::read() {
     }
 }
 
-void FileMaster::saveEncrypted() {
+void FileMaster::saveEncrypted(bool print) {
     int bytesAmount = MESSAGE_SIZE / BYTE_SIZE;
 
     for (const auto &item: outputBuffer) {
@@ -58,6 +58,9 @@ void FileMaster::saveEncrypted() {
             }
 
             buffer[i] = static_cast<unsigned char>( tempBitset.to_ullong() );
+            if (print) {
+                cout << buffer[i];
+            }
         }
         outFile->write(buffer, BYTE_SIZE);
         delete[] buffer;
@@ -66,7 +69,7 @@ void FileMaster::saveEncrypted() {
     outputBuffer.clear();
 }
 
-void FileMaster::save() {
+void FileMaster::save(bool print) {
     int bytesAmount = MESSAGE_SIZE / BYTE_SIZE;
     int pos = inFile->tellg();
     int maxSize = inFile->seekg(0, inFile->end).tellg();
@@ -85,6 +88,9 @@ void FileMaster::save() {
                 tempBitset.set(j, item[i * BYTE_SIZE + j]);
             }
             buffer[i] = static_cast<unsigned char>( tempBitset.to_ullong() );
+            if (print) {
+                cout << buffer[i];
+            }
         }
 
         outFile->write(buffer, sizeBuffer);

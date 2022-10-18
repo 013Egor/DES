@@ -97,10 +97,3 @@ public:
     static void changeS_box(int id, int row, int column, int value);
 
 };
-
-//cout << "| 9) Change PC-1 table                |\n"; //TODO 9
-//cout << "| 10) Change PC-2 table               |\n"; //TODO 10
-//cout << "| 11) Change IP table                 |\n"; //TODO 11
-//cout << "| 12) Change E table                  |\n"; //TODO 12
-//cout << "| 13) Change P table                  |\n"; //TODO 13
-//cout << "| 14) Change IP~ table                |\n"; //TODO 14

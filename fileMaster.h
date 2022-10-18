@@ -91,8 +91,13 @@ public:
 
     void read();
 
-    void saveEncrypted();
+    void saveEncrypted(bool print);
 
     bool isReadable();
-    void save();
+
+    void save(bool print);
+
+    void printExtraBytes() {
+        cout << (char) extraBytes;
+    }
 };

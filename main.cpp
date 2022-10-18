@@ -10,10 +10,12 @@ Mode getMode();
 string getKey();
 
 string key;
+char inputType;
 
 int main(){
     Mode encryptionType = getMode();
     key = getKey();
+
     menuSelection();
 
     if (encryptionType == encryption) {
@@ -27,45 +29,93 @@ int main(){
     return 0;
 }
 
+char getInputType() {
+    string trash;
+    cout << "What you want? (f - read from file, m - write message)\n";
+    cout << "Input: ";
+
+    cin >> inputType;
+    while (inputType != 'f' && inputType != 'm') {
+        cin.putback(inputType);
+        cin >> trash;
+        cout << "Tell me what you want!!! (f - read from file, m - write message)\n";
+        cout << "Input: ";
+        cin >> inputType;
+    }
+
+    return inputType;
+}
+
 void encrypt(string keyStr) {
-    string filename;
-    cout << "Enter file name: ";
-    cin >> filename;
-    FileMaster* file = new FileMaster(filename, encryption);
+    char answer = getInputType();
+
+    FileMaster* file;
+    string input;
+    if (answer == 'f') {
+        cout << "Enter file name: ";
+        cin >> ws;
+        cin >> input;
+        file = new FileMaster(input, encryption);
+    } else {
+        cout << "Enter message: ";
+        cin >> ws;
+        getline(cin, input);
+
+        ofstream outFile("message", std::ofstream::out);
+        outFile << input;
+        outFile.close();
+        file = new FileMaster("message", encryption);
+    }
+
 
     reverse(keyStr.begin(), keyStr.end());
     bitset<EXTENDED_KEY_SIZE> myKey(keyStr);
 
     bitset<64> origin;
 
+    cout << '\n' << "Encrypted message: \n";
+    file->printExtraBytes();
     while(file->isReadable()) {
         file->read();
-
         while ((origin = file->getBlock()) != NULL) {
 
             Des* encryptor = new Des(myKey, origin, encryption);
 
             bitset<64> encrypt = encryptor->run();
             file->setBlock(encrypt);
-            file->saveEncrypted();
+            file->saveEncrypted(inputType == 'm');
         }
 
     }
-    cout << file->outFile->tellp();
+    cout << '\n' << endl;
     delete file;
 }
 
 void decipher(string keyStr) {
-    string filename;
-    cout << "Enter file name: ";
-    cin >> filename;
-    FileMaster* file = new FileMaster(filename, decryption);
+    char answer = getInputType();
+
+    FileMaster* file;
+    string input;
+    if (answer == 'f') {
+        cout << "Enter file name: ";
+        cin >> ws;
+        cin >> input;
+        file = new FileMaster(input, decryption);
+    } else {
+        cout << "Enter message: ";
+        cin >> ws >> input;
+        ofstream outFile("message", std::ofstream::out);
+        outFile << input;
+        outFile.close();
+        file = new FileMaster("message_output.des", decryption);
+    }
 
     reverse(keyStr.begin(), keyStr.end());
     bitset<EXTENDED_KEY_SIZE> myKey(keyStr);
 
     bitset<64> encrypt;
 
+    cout << '\n' << "Deciphered message: \n";
     while(file->isReadable()) {
 
         file->read();
@@ -76,13 +126,15 @@ void decipher(string keyStr) {
 
             bitset<64> origin = decryptor->run();
             file->setBlock(origin);
-            file->save();
+            file->save(inputType == 'm');
         }
 
     }
-    cout << file->outFile->tellp();
+    cout << '\n' << endl;
     delete file;
 }
+
+
 
 string getKey() {
     char answer;
@@ -92,6 +144,7 @@ string getKey() {
 
     cin >> answer;
     while (answer != 'y' && answer != 'n') {
+        cin.putback(answer);
         cin >> trash;
         cout << "Tell me what you want!!! (n - now, y - yes)\n";
         cout << "Input: ";
@@ -109,6 +162,7 @@ string getKey() {
             }
         }
         while (keyStr.length() != 64  || isKeyCorrect == false) {
+            cin.putback(answer);
             cin >> trash;
             cout << "Enter valid key!!!\n";
             cout << "Enter key: ";
@@ -133,6 +187,7 @@ Mode getMode() {
 
     cin >> answer;
     while (answer != 'e' && answer != 'd') {
+        cin.putback(answer);
         cin >> trash;
         cout << "Tell me what you want!!! (e - encrypt, d - decipher)\n";
         cout << "Input: ";
@@ -146,7 +201,7 @@ void menuSelection() {
     string input;
     while (true) {
         showMenu();
-        numMenu = getNumber(0, 16);
+        numMenu = getNumber(0, 17);
 
         if (numMenu == 1) {
             Des::showPC_1();
@@ -213,7 +268,7 @@ void menuSelection() {
             int column = getNumber(0, IP_COLUMNS);
             cout << "Enter value (from 1 to 64)";
             int value = getNumber(1, 64);
-            Des::changeP(row, column, value);
+            Des::changeIP_r(row, column, value);
         } else if (numMenu == 15) {
             cout << "Enter s-box number (from 0 to 7)";
             int id = getNumber(0,S_BOX_NUMBER);
@@ -224,6 +279,10 @@ void menuSelection() {
             cout << "Enter value (from 1 to 16)";
             int value = getNumber(1, 17);
             Des::changeS_box(id, row, column, value);
+        } else if (numMenu == 16) {
+            cout << "Enter number of rounds (from 0 to " << MAX_ROUNDS << "):";
+            int rounds = getNumber(0,MAX_ROUNDS);
+            Des::changeROUNDS(rounds);
         } else if (numMenu == 0) {
             break;
         }
@@ -249,6 +308,7 @@ void showMenu() {
     cout << "| 13) Change P table                  |\n";
     cout << "| 14) Change IP~ table                |\n";
     cout << "| 15) Change S-box                    |\n";
+    cout << "| 16) Change rounds                   |\n";
     cout << "| 0) Continue                         |\n";
     cout << "---------------------------------------\n";
 }
@@ -260,6 +320,7 @@ int getNumber(int min, int max) {
     while (isChoiceIncorrect) {
         try {
             cout << "\nYour choice: ";
+            cin >> ws;
             cin >> input;
             num = stoi(input);
 
