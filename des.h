@@ -11,7 +11,7 @@ from https://page.math.tu-berlin.de/~kant/teaching/hess/krypto-ws2006/des.htm
 #define EXTENDED_KEY_SIZE 64
 #define KEY_SIZE 56
 #define SUBKEY_SIZE 48
-#define ROUNDS 16
+
 
 #define MESSAGE_SIZE 64
 
@@ -34,6 +34,8 @@ from https://page.math.tu-berlin.de/~kant/teaching/hess/krypto-ws2006/des.htm
 #define F_FUNCTION_ROUNDS 8
 #define F_FUNCTION_BLOCKS 6 //example: 100100 
 
+#define MAX_ROUNDS 1000
+
 //F_FUNCTION_BLOCKS = S_BOX_ROW_POSITION + S_BOX_COLUMN_POSITION
 
 #define S_BOX_ROW_POSITION 2 //[1]0010[O] ---> 10
@@ -45,6 +47,7 @@ from https://page.math.tu-berlin.de/~kant/teaching/hess/krypto-ws2006/des.htm
 
 using namespace std;
 
+static int ROUNDS = 16;
 
 class Des{
 
@@ -52,7 +55,7 @@ private:
     Mode mode;
 
     bitset<EXTENDED_KEY_SIZE> extendedKey;
-    bitset<SUBKEY_SIZE> subkey[ROUNDS];
+    bitset<SUBKEY_SIZE> subkey[MAX_ROUNDS];
     bitset<MESSAGE_SIZE> message;
 
     //for subkey initialization
@@ -84,6 +87,7 @@ public:
     static void showP();
     static void showIP_r();
     static void showS_box(int id);
+    static void changeROUNDS(int value);
     static void changePC_1(int row, int column, int value);
     static void changePC_2(int row, int column, int value);
     static void changeIP(int row, int column, int value);

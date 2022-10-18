@@ -111,7 +111,7 @@ int S_BOX[S_BOX_NUMBER][S_BOX_ROWS][S_BOX_COLUMNS] = {
         }
 };
 
-int LEFT_SHIFTS_NUMBER[ROUNDS] = {1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1};
+int LEFT_SHIFTS_NUMBER[16] = {1, 1, 2, 2, 2, 2, 2, 2, 1, 2, 2, 2, 2, 2, 2, 1};
 void drawCell(int item) {
     if (item / 10 == 0) {
         cout << "| " << item << "  |";
@@ -211,6 +211,10 @@ void Des::showS_box(int id) {
     drawLine(98);
 }
 
+void Des::changeROUNDS(int value){
+    ROUNDS = value;
+}
+
 void Des::changePC_1(int row, int column, int value) {
     PC1[row][column] = value;
 }
@@ -283,7 +287,7 @@ void Des::subkeyInitialization(){
         int concatenatedCounter = 0; 
 
         //shift halfs
-        for(int shiftCounter = 0; shiftCounter < LEFT_SHIFTS_NUMBER[roundCounter - 1]; shiftCounter++){
+        for(int shiftCounter = 0; shiftCounter < LEFT_SHIFTS_NUMBER[(roundCounter - 1) % 16]; shiftCounter++){
 
             lostValue = leftKeyHalf[0];
             leftKeyHalf >>= 1; 
